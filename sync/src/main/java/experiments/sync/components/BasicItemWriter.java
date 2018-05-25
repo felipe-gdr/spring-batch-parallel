@@ -19,7 +19,9 @@ public class BasicItemWriter implements ItemWriter<Item>, StepExecutionListener 
     @Override
     public void beforeStep(StepExecution stepExecution) {
         try {
-            FileUtils.forceDelete(OUT_FILE);
+            if(OUT_FILE.exists()) {
+                FileUtils.forceDelete(OUT_FILE);
+            }
         } catch (IOException e) {
             System.out.printf("Error deleting directory %s", OUT_FILE.getAbsolutePath());
             e.printStackTrace();
@@ -38,7 +40,6 @@ public class BasicItemWriter implements ItemWriter<Item>, StepExecutionListener 
         FileUtils.writeLines(
                 new File("out/result.txt"),
                 items,
-                "UTF-8",
                 true
         );
     }
