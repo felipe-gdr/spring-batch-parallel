@@ -28,7 +28,7 @@ public class BasicItemReader implements ItemReader<Item> {
     }
 
     @Override
-    public Item read() throws ItemReaderException {
+    public synchronized Item read() throws ItemReaderException {
         return items.poll();
     }
 }

@@ -14,23 +14,27 @@ import java.util.List;
 
 @Component("basicItemWriter")
 public class BasicItemWriter implements ItemWriter<Item>, StepExecutionListener {
-    private static final File OUT_FILE = new File("out/result.txt");
+    private File outFile;
 
     @Override
     public void beforeStep(StepExecution stepExecution) {
+        String jobName = stepExecution.getJobExecution().getJobInstance().getJobName();
+
+        outFile = new File("out/" + jobName + ".txt");
+
         try {
-            if(OUT_FILE.exists()) {
-                FileUtils.forceDelete(OUT_FILE);
+            if(outFile.exists()) {
+                FileUtils.forceDelete(outFile);
             }
         } catch (IOException e) {
-            System.out.printf("Error deleting directory %s", OUT_FILE.getAbsolutePath());
+            System.out.printf("Error deleting directory %s", outFile.getAbsolutePath());
             e.printStackTrace();
         }
     }
 
     @Override
     public ExitStatus afterStep(StepExecution stepExecution) {
-        System.out.printf("%n\t\tFile written to disk. Total size: %s%n%n", FileUtils.byteCountToDisplaySize(OUT_FILE.length()));
+        System.out.printf("%n\t\tFile written to disk. Total size: %s%n%n", FileUtils.byteCountToDisplaySize(outFile.length()));
 
         return ExitStatus.COMPLETED;
     }
@@ -38,7 +42,7 @@ public class BasicItemWriter implements ItemWriter<Item>, StepExecutionListener 
     @Override
     public void write(List<? extends Item> items) throws Exception {
         FileUtils.writeLines(
-                new File("out/result.txt"),
+                outFile,
                 items,
                 true
         );

@@ -2,14 +2,25 @@ package experiments.sync.components;
 
 import experiments.sync.model.Item;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
+@Component("processorOne")
 public class ProcessorOne implements ItemProcessor<Item, Item> {
-    private static final Date START_TIME = new Date();
+    private Date startDate;
+    private int counter;
 
-    private static int counter = 0;
+    @PostConstruct
+    public void ProcessorOne() {
+        this.resetCounter();
+    }
+
+    public void resetCounter() {
+        counter = 0;
+        startDate = new Date();
+    }
 
     @Override
     public Item process(Item item) {
@@ -20,6 +31,12 @@ public class ProcessorOne implements ItemProcessor<Item, Item> {
             e.printStackTrace();
         }
 
+        writeStats();
+
+        return item;
+    }
+
+    private synchronized void writeStats() {
         counter++;
 
         if(counter % 10 == 0) {
@@ -27,10 +44,10 @@ public class ProcessorOne implements ItemProcessor<Item, Item> {
         }
 
         if(counter % 500 == 0) {
-            final long elapsedTime = TimeUnit.MILLISECONDS.toSeconds(new Date().getTime() - START_TIME.getTime());
+            final double elapsedTime = (new Date().getTime() - startDate.getTime()) / 1000.0;
             System.out.printf(" %s in %s seconds %n", counter, elapsedTime);
         }
 
-        return item;
     }
+
 }
